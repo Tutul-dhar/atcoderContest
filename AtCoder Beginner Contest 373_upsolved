@@ -1,0 +1,128 @@
+#include<bits/stdc++.h>
+#include<iostream>
+#include<set>
+#include<map>
+#include<iterator>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+
+///Defines.....
+#define ll              long long
+#define int              long long
+#define pb              push_back
+#define RIP(i,n)        for(ll i=0; i<n; i++)
+#define PI              acos(-1)
+#define nl              '\n'
+
+
+using namespace std;
+using namespace __gnu_pbds;
+typedef tree<ll, null_type, less<ll>, rb_tree_tag,tree_order_statistics_node_update> ordered_set;
+
+
+///Constants........
+const ll mod = 1e9+7;
+//const int mod = 998244353;
+const int N = 1e5 + 5;
+const ll Max = 1e5+5;
+const ll inf = 1e18+5;
+const ll mx_n = 1e7+5;
+const int LOG = 20;
+
+///Chess moves.........
+ int dx[] = {+0, +0, -1, +1}; ///Up-down, Left-Right
+ int dy[] = {+1, -1, +0, +0};
+// int dx[] = {+0,+0,+1,-1,-1,+1,-1,+1}; ///King's Move
+//int dy[] = {-1,+1,+0,+0,+1,+1,-1,-1};
+// int dx[] = {-2, -2, -1, -1,  1,  1,  2,  2}; ///Knight's Move
+// int dy[] = {-1,  1, -2,  2, -2,  2, -1,  1};
+
+inline void norm(ll &a) {a%=mod; (a<0) && (a+=mod) ;}
+inline ll modAdd(ll a,ll b) {a%=mod, b%=mod; norm(a),norm(b); return (a+b)%mod;}
+inline ll modSub(ll a,ll b) {a%=mod, b%=mod; norm(a),norm(b); return (a-b)%mod;}
+inline ll modMul(ll a,ll b) {a%=mod, b%=mod; norm(a),norm(b); return (a*b)%mod;}
+inline ll modpow(ll a,ll p) {ll ans=1;while(p){if(p%2)ans=(ans*a)%mod;a=(a*a)%mod;p/=2;} return ans;}
+
+///Functions..........
+ll bigmod(ll a, ll p, ll M)
+{
+    p %= (M-1);
+    ll result = 1LL;
+    while(p>0LL){
+        if((p&1LL)) result = (result * a) % M;
+        a = (a * a) % M;
+        p>>=1LL;
+
+    }
+    return result;
+}
+
+ll gcd(ll a, ll b){ while (b){ a %= b; swap(a, b);} return a;}
+ll lcm(ll a,ll b){ return (a/gcd(a, b)*b);}
+
+ll inverse(ll a, ll M){
+    return bigmod(a, M-2, M) % M;
+}
+ll ncr(ll a, ll b){ ll x = max(a-b, b), ans=1; for(ll K=a, L=1; K>=x+1; K--, L++){ ans = ans * K % mod; ans = ans * inverse(L, mod) % mod;} return ans;}
+ll ncrwithk(ll n,ll k){if(k>n-k) k=n-k;ll p=1,pp=1;if(k!=0){while(k){p*=n;pp*=k;ll m=__gcd(p,pp);p/=m;pp/=m;n--;k--;}}else p=1;return p;}
+ll fact[Max];
+ll ncr_mod(ll n,ll r) {if(n < r || r < 0) return 0;return (((fact[n]*inverse(fact[r], mod))%mod)*inverse(fact[n-r], mod))%mod;}
+void fac() {fact[0] = 1; for(ll i = 1; i < Max; i++) fact[i] = (i*fact[i-1])%mod;}
+
+
+            /********************************* Let's Start *********************************/
+
+
+
+void solve() {
+    ll n,w;
+    cin >> n >> w;
+    vector<ll> v[w+1];
+    ll a,b;
+    RIP(i,n) {
+        cin >> a >> b;
+        v[a].pb(b);
+    }
+    ll dp[w+1][w+1];
+    memset(dp,0,sizeof dp);
+    for(ll i = 1; i <= w; i++) {
+        for(ll j = 1; j <= w; j++) dp[i][j] = dp[i-1][j];
+        if(v[i].size() == 0) continue;
+        priority_queue<ll> pq;
+        ll len = w/i;
+        for(ll ch : v[i]) pq.push(ch-1);
+        vector<ll> val(len+2);
+        val[0] = 0;
+        for(ll j = 1; j <= len; j++) {
+            ll e = pq.top();
+            pq.pop();
+            val[j] = val[j-1] + e;
+            pq.push(e-2);
+        }
+        //for(ll ch : val) cout << ch << ' ';
+        //cout << nl;
+        for(ll j = 1; j <= w; j++) {
+            //dp[i][j] = dp[i-1][j];
+            for(ll k = 0; k <= len; k++) {
+                if(j-i*k >= 0) dp[i][j] = max(dp[i][j],dp[i-1][j-i*k]+val[k]);
+            }
+            dp[i][j] = max(dp[i][j],dp[i][j-1]);
+        }
+    }
+
+    cout << dp[w][w] << nl;
+}
+
+
+
+int32_t main() {
+    ios_base::sync_with_stdio(0), cin.tie(0);
+    int t = 1;
+
+    //cin >> t;
+
+    while(t--) {
+
+        solve();
+    }
+}
